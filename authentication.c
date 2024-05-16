@@ -4,59 +4,81 @@
 #include<string.h>
 #include<unistd.h>
 #define RECORD_SIZE 900
-void addLibrarian(char* name){
+void addLibrarian(char* username, char* password){
+    // Open file for appending
+    int file = open("librarians.txt", O_WRONLY | O_APPEND);
     struct flock lock;
     lock.l_type=F_WRLCK; //mandatory locking
     lock.l_whence=SEEK_SET;
     lock.l_start=0;
     lock.l_len=RECORD_SIZE;
-    strcat(name,"\n");
-    int file=open("librarians.txt",O_WRONLY | O_APPEND);
-    if(file==-1){
+    if(file == -1) {
         printf("Error opening librarians file\n");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     //lock the file
     if(fcntl(file,F_SETLKW,&lock)==-1){
         printf("Error locking librarians file\n");
         exit(EXIT_FAILURE);
     }
-    int sz=write(file,name,strlen(name));
-    printf("Librarian successfully added\n");
-    lock.l_type=F_UNLCK;
-    if(fcntl(file,F_SETLKW,&lock)==-1){
-        printf("Error unlocking librarians file\n");
+    // Format the string to write
+    char buffer[RECORD_SIZE];
+    snprintf(buffer, RECORD_SIZE, "%s:%s\n", username, password);
+
+    // Write to file
+    int bytes_written = write(file, buffer, strlen(buffer));
+    if (bytes_written == -1) {
+        printf("Error writing to librarians\n");
+        close(file);
         exit(EXIT_FAILURE);
     }
+    //unlocking file
+    lock.l_type=F_UNLCK;
+    if(fcntl(file,F_SETLKW,&lock)==-1){
+        printf("Error unlocking Librarians file\n");
+        exit(EXIT_FAILURE);
+    }
+    printf("Librarian successfully added\n");
     close(file);
 }
-void addUser(char *name){
+void addUser(char* username, char* password){
+    // Open file for appending
+    int file = open("users.txt", O_WRONLY | O_APPEND);
     struct flock lock;
-    lock.l_type=F_WRLCK;
+    lock.l_type=F_WRLCK; //mandatory locking
     lock.l_whence=SEEK_SET;
     lock.l_start=0;
-    lock.l_len=RECORD_SIZE; //mandatory locking
-    strcat(name,"\n");
-    int file=open("users.txt",O_WRONLY | O_APPEND);
-    if(file==-1){
+    lock.l_len=RECORD_SIZE;
+    if(file == -1) {
         printf("Error opening users file\n");
-        exit(1);
+        exit(EXIT_FAILURE);
     }
     //lock the file
     if(fcntl(file,F_SETLKW,&lock)==-1){
         printf("Error locking users file\n");
         exit(EXIT_FAILURE);
     }
-    int sz=write(file,name,strlen(name));
-    printf("User successfully added\n");
-    lock.l_type=F_UNLCK;
-    if(fcntl(file,F_SETLKW,&lock)==-1){
-        printf("Error unlocking users file\n");
+    // Format the string to write
+    char buffer[RECORD_SIZE];
+    snprintf(buffer, RECORD_SIZE, "%s:%s\n", username, password);
+
+    // Write to file
+    int bytes_written = write(file, buffer, strlen(buffer));
+    if (bytes_written == -1) {
+        printf("Error writing to users\n");
+        close(file);
         exit(EXIT_FAILURE);
     }
+    //unlocking the file
+    lock.l_type=F_UNLCK;
+    if(fcntl(file,F_SETLKW,&lock)==-1){
+        printf("Error unlocking Users file\n");
+        exit(EXIT_FAILURE);
+    }
+    printf("User successfully added\n");
     close(file);
 }
-int isLibrarianPresent(char* name){
+int authenticateLibrarian(char* username, char* password) {
     int file;
     ssize_t bytes_read;
     char buffer[1000];
@@ -68,6 +90,7 @@ int isLibrarianPresent(char* name){
     lock.l_whence=SEEK_SET;
     lock.l_start=0; //adviosry locking 
     lock.l_len=RECORD_SIZE;
+    // Open the file for reading
     file = open("librarians.txt", O_RDONLY);
     if (file == -1) {
         printf("Error opening file");
@@ -78,18 +101,34 @@ int isLibrarianPresent(char* name){
         printf("Error locking Librarians file\n");
         exit(EXIT_FAILURE);
     }
+    // Read the file line by line
     while ((bytes_read = read(file, buffer, 1000)) > 0) {
         for (int i = 0; i < bytes_read; i++) {
             if (buffer[i] == '\n') {
-                line[line_length] = '\0'; 
-                if(!strcmp(line,name)){
-                    printf("Librarian found successfully\n");
+                // End of line reached, null-terminate the string
+                line[line_length] = '\0';
+
+                // Extract username and password from the line
+                char *saved_username = strtok(line, ":");
+                char *saved_password = strtok(NULL, ":");
+
+                // Check if the username and password match
+                if (strcmp(saved_username, username) == 0 && strcmp(saved_password, password) == 0) {
+                    printf("Authentication successful\n");
+                    //unlocking the file
+                    lock.l_type=F_UNLCK;
+                    if(fcntl(file,F_SETLK,&lock)==-1){
+                        printf("Error unlocking Librarians file\n");
+                        exit(EXIT_FAILURE);
+                    }
                     close(file);
-                    return 1;
+                    return 1; // Librarian found
                 }
-                write(STDOUT_FILENO, "\n", 1);
+
+                // Reset line buffer
                 line_length = 0;
             } else {
+                // Copy character to line buffer
                 line[line_length] = buffer[i];
                 line_length++;
             }
@@ -101,21 +140,26 @@ int isLibrarianPresent(char* name){
         printf("Error unlocking Librarians file\n");
         exit(EXIT_FAILURE);
     }
+    // Close the file
     close(file);
+
+    // Authentication failed
+    printf("Authentication failed\n");
     return 0;
 }
-int isUserPresent(char* name){
+int authenticateUser(char* username, char* password) {
     int file;
     ssize_t bytes_read;
     char buffer[1000];
     char line[1000];
-    int line_length = 0; // advisory locking 
+    int line_length = 0;
     //initialize lock
     struct flock lock;
     lock.l_type=F_RDLCK;
     lock.l_whence=SEEK_SET;
-    lock.l_start=0;
+    lock.l_start=0; //adviosry locking 
     lock.l_len=RECORD_SIZE;
+    // Open the file for reading
     file = open("users.txt", O_RDONLY);
     if (file == -1) {
         printf("Error opening file");
@@ -123,21 +167,37 @@ int isUserPresent(char* name){
     }
     //lock the file now
     if(fcntl(file,F_SETLK,&lock)==-1){
-        printf("Error locking Librarians file\n");
+        printf("Error locking User file\n");
         exit(EXIT_FAILURE);
     }
+    // Read the file line by line
     while ((bytes_read = read(file, buffer, 1000)) > 0) {
         for (int i = 0; i < bytes_read; i++) {
             if (buffer[i] == '\n') {
-                line[line_length] = '\0'; 
-                if(!strcmp(line,name)){
-                    printf("User found successfully\n");
+                // End of line reached, null-terminate the string
+                line[line_length] = '\0';
+
+                // Extract username and password from the line
+                char *saved_username = strtok(line, ":");
+                char *saved_password = strtok(NULL, ":");
+
+                // Check if the username and password match
+                if (strcmp(saved_username, username) == 0 && strcmp(saved_password, password) == 0) {
+                    printf("Authentication successful\n");
+                    //unlocking the file
+                    lock.l_type=F_UNLCK;
+                    if(fcntl(file,F_SETLK,&lock)==-1){
+                        printf("Error unlocking Users file\n");
+                        exit(EXIT_FAILURE);
+                    }
                     close(file);
-                    return 1;
+                    return 1; // User found
                 }
-                write(STDOUT_FILENO, "\n", 1);
+
+                // Reset line buffer
                 line_length = 0;
             } else {
+                // Copy character to line buffer
                 line[line_length] = buffer[i];
                 line_length++;
             }
@@ -146,15 +206,21 @@ int isUserPresent(char* name){
     //unlocking the file
     lock.l_type=F_UNLCK;
     if(fcntl(file,F_SETLK,&lock)==-1){
-        printf("Error unlocking Librarians file\n");
+        printf("Error unlocking Users file\n");
         exit(EXIT_FAILURE);
     }
+    // Close the file
     close(file);
+
+    // Authentication failed
+    printf("Authentication failed\n");
     return 0;
 }
 int main(){
-    char name[]="tom silverwood";
+    char name[]="ash turner";
+    char password[]="ash turner is a good boy";
     // printf("%d\n",isUserPresent(name));
-    addUser(name);
+    // addUser(name,password);
+    printf("%d\n",authenticateUser(name,password));
     return 0;
 }
