@@ -3,6 +3,7 @@
 #include<fcntl.h>
 #include<string.h>
 #include<unistd.h>
+#include"addition.h"
 #define RECORD_SIZE 900
 int authenticateLibrarian(char* username, char* password) {
     int file;
@@ -33,11 +34,11 @@ int authenticateLibrarian(char* username, char* password) {
             if (buffer[i] == '\n') {
                 // End of line reached, null-terminate the string
                 line[line_length] = '\0';
-
+                printf("%s line we got\n",line);
                 // Extract username and password from the line
                 char *saved_username = strtok(line, ":");
                 char *saved_password = strtok(NULL, ":");
-
+                printf("%s %s\n",saved_username,saved_password); /////////////////////////////////////////////
                 // Check if the username and password match
                 if (strcmp(saved_username, username) == 0 && strcmp(saved_password, password) == 0) {
                     printf("Authentication successful\n");
@@ -142,11 +143,11 @@ int authenticateUser(char* username, char* password) {
     printf("Authentication failed\n");
     return 0;
 }
-int main(){
-    char name[]="ash turner";
-    char password[]="ash turner is a good boy";
-    // printf("%d\n",isUserPresent(name));
-    // addUser(name,password);
-    printf("%d\n",authenticateUser(name,password));
-    return 0;
-}
+// int main(){
+//     char name[]="zen";
+//     char password[]="zendaya";
+//     // printf("%d\n",isUserPresent(name));
+//     // addLibrarian(name,password);
+//     printf("%d\n",authenticateLibrarian(name,password));
+//     return 0;
+// }

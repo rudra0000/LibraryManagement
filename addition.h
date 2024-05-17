@@ -1,4 +1,5 @@
 #ifndef ADDITION_H
-void addLibrarian(char* username,char* password);
-void addUser(char* username,char* password);
+#define ADDITION_H
+int addLibrarian(char* username,char* password);
+int addUser(char* username,char* password);
 #endif

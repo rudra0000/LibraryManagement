@@ -1,2 +1,8 @@
-tom silverwood:tom is a good boy
-mark henry:mark henry is a good boy
+nar:naris
+hero:heroine
+zen:zendaya
+jason:monoma
+raj:bunsga
+nihal:sarin
+bootstrap:turner
+abu:bakr

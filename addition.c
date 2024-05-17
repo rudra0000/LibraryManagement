@@ -4,7 +4,7 @@
 #include<string.h>
 #include<unistd.h>
 #define RECORD_SIZE 900
-void addLibrarian(char* username, char* password){
+int addLibrarian(char* username, char* password){
     // Open file for appending
     int file = open("librarians.txt", O_WRONLY | O_APPEND);
     struct flock lock;
@@ -24,7 +24,7 @@ void addLibrarian(char* username, char* password){
     // Format the string to write
     char buffer[RECORD_SIZE];
     snprintf(buffer, RECORD_SIZE, "%s:%s\n", username, password);
-
+    printf(" to write %s\n",buffer);
     // Write to file
     int bytes_written = write(file, buffer, strlen(buffer));
     if (bytes_written == -1) {
@@ -38,10 +38,12 @@ void addLibrarian(char* username, char* password){
         printf("Error unlocking Librarians file\n");
         exit(EXIT_FAILURE);
     }
+    printf("hello we are here\n");
     printf("Librarian successfully added\n");
     close(file);
+    return 1;
 }
-void addUser(char* username, char* password){
+int addUser(char* username, char* password){
     // Open file for appending
     int file = open("users.txt", O_WRONLY | O_APPEND);
     struct flock lock;
@@ -77,4 +79,5 @@ void addUser(char* username, char* password){
     }
     printf("User successfully added\n");
     close(file);
+    return 1;
 }

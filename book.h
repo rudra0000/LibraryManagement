@@ -1,5 +1,6 @@
 #ifndef BOOK_H
-void addBook(char* bookname,int numCopies);
-void issueBook(char* bookname);
-void returnBook(char* bookname);
+#define BOOK_H
+void addBook(char* bookname,char* numCopies);
+void issueBook(char* bookname,char* username);
+void returnBook(char* bookname,char* username);
 #endif
