@@ -22,7 +22,7 @@ int main(){
     scanf("%s",username);
     scanf("%s",password);
     int verified=0;
-    if(choice==1){
+    if(flag==1){
         verified=authenticateUser(username,password);
     }else{
         verified=authenticateLibrarian(username,password);
@@ -53,6 +53,7 @@ int main(){
             printf("2.add librarian\n");
             printf("3. logout\n");
             printf("4.add book\n");
+            printf("6.delete book\n");
             scanf("%d",&choice);
         }else if(flag==1){
             //write menu for user
@@ -70,7 +71,6 @@ int main(){
                 strcat(username,":");
                 strcat(username,password);
                 send(client_socket,username,sizeof(username),0);
-                // send(client_socket,password,sizeof(password),0);
             }else if(choice==3){
                 printf("bye\n");
                 break;
@@ -85,6 +85,12 @@ int main(){
                 char bookname[2000],username[2000];
                 scanf("%s",bookname);
                 scanf("%s",username);
+                strcat(bookname,":");
+                strcat(bookname,username);
+                send(client_socket,bookname,sizeof(bookname),0);
+            }else if(choice==6){
+                char* bookname[2000];
+                scanf("%s",bookname);
                 strcat(bookname,":");
                 strcat(bookname,username);
                 send(client_socket,bookname,sizeof(bookname),0);

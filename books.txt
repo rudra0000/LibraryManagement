@@ -1,4 +1,0 @@
-
-harrypotter:jkrowling
-junglebook:rudyardkipling
-programmingc:dennisritchie

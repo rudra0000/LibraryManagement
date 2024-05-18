@@ -18,7 +18,7 @@ void* handleClient(void* arg){
     //handle client requests
     int choice;
     while(recv(client_socket,&choice,sizeof(choice),0)>0){
-        printf("%d we got as choice\n",choice);
+        // printf("%d we got as choice\n",choice);
         if(choice==1){
             char buffer[2000];
             recv(client_socket,buffer,sizeof(buffer),0);
@@ -45,6 +45,14 @@ void* handleClient(void* arg){
             char* bookname=strtok(buffer,":");
             char* username=strtok(NULL,":");
             issueBook(bookname,username);
+        }else if(choice==6){
+            char buffer[2000];
+            recv(client_socket,buffer,sizeof(buffer),0);
+            printf("received %s for delete book choice\n",buffer);
+            char* bookname=strtok(buffer,":");
+            char* username=strtok(NULL,":");
+            printf("%s %s\n",bookname,username);
+            deleteBook(bookname,username);
         }
     }
     close(client_socket);
