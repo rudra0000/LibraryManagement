@@ -8,7 +8,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include"authentication.h"
-#define PORT 1079
+#define PORT 1085
 int main(){
     int client_socket;
     int choice;
@@ -46,18 +46,18 @@ int main(){
     }
     while(1){
         //display menu to the user
-        printf("hello we can be here\n");
-        printf("choice is %d\n",choice);
         if(flag==2){
             printf("1.add user\n");
             printf("2.add librarian\n");
-            printf("3. logout\n");
+            printf("3.logout\n");
             printf("4.add book\n");
-            printf("6.delete book\n");
+            printf("5.delete book\n");
             scanf("%d",&choice);
         }else if(flag==1){
             //write menu for user
-            printf("5. issue book\n");
+            printf("6. issue book\n");
+            printf("7. return book\n");
+            printf("8. logout\n");
             scanf("%d",&choice);
         }
         if(send(client_socket,&choice,sizeof(choice),0)==-1){
@@ -71,30 +71,35 @@ int main(){
                 strcat(username,":");
                 strcat(username,password);
                 send(client_socket,username,sizeof(username),0);
-            }else if(choice==3){
+            }else if(choice==3 || choice==8){
                 printf("bye\n");
                 break;
             }else if(choice==4){
-                char bookname[2000], cnt[2000];
+                char bookname[2000], author[2000];
                 scanf("%s",bookname);
-                scanf("%s",&cnt);
+                scanf("%s",&author);
                 strcat(bookname,":");
-                strcat(bookname,cnt);
+                strcat(bookname,author);
                 send(client_socket,bookname,sizeof(bookname),0);
-            }else if(choice==5){
+            }else if(choice==5 || choice==6 || choice==7){
                 char bookname[2000],username[2000];
                 scanf("%s",bookname);
                 scanf("%s",username);
-                strcat(bookname,":");
-                strcat(bookname,username);
-                send(client_socket,bookname,sizeof(bookname),0);
-            }else if(choice==6){
-                char* bookname[2000];
-                scanf("%s",bookname);
+                printf("%s\n",username);
                 strcat(bookname,":");
                 strcat(bookname,username);
                 send(client_socket,bookname,sizeof(bookname),0);
             }
+            // else if(choice==6){
+            //     char* bookname[2000];
+            //     scanf("%s",bookname);
+            //     strcat(bookname,":");
+            //     strcat(bookname,username);
+            //     send(client_socket,bookname,sizeof(bookname),0);
+            // }
+            char message[2000]="";
+            recv(client_socket,message,sizeof(message),0);
+            printf("%s",message);
         }
     }
     close(client_socket);

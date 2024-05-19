@@ -1,0 +1,5 @@
+junglebook:rudyardkipling
+linearalgebra:gilbertstrang
+invisibleman:hgwells
+gullivertravels:jonathanswift
+harrypotter:jkrowling

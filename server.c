@@ -9,7 +9,7 @@
 #include<fcntl.h>
 #include"addition.h"
 #include"book.h"
-#define PORT 1079
+#define PORT 1085
 #define MAX_CLIENTS 10
 #define RECORD_SIZE 900
 void* handleClient(void* arg){
@@ -26,6 +26,13 @@ void* handleClient(void* arg){
             char *username = strtok(buffer, ":");
             char *password = strtok(NULL, ":");
             addUser(username,password);
+            char message[2000]="";
+            strcat(message,username);
+            strcat(message," user has been added to library\n");
+            if(send(client_socket,message,strlen(message),0)==-1){
+                printf("Error sending this message\n");
+                exit(EXIT_FAILURE);
+            }
         }else if(choice==2){
             char buffer[2000];
             recv(client_socket,buffer,sizeof(buffer),0);
@@ -33,26 +40,73 @@ void* handleClient(void* arg){
             char *username = strtok(buffer, ":");
             char *password = strtok(NULL, ":");
             addLibrarian(username,password);
+            char message[2000]="";
+            strcat(message,username);
+            strcat(message," librarian has been added to library\n");
+            if(send(client_socket,message,strlen(message),0)==-1){
+                printf("Error sending this message\n");
+                exit(EXIT_FAILURE);
+            }
         }else if(choice==4){
             char buffer[2000];
             recv(client_socket,buffer,sizeof(buffer),0);
             char* bookname=strtok(buffer,":");
             char* numCopies=strtok(NULL,":");
             addBook(bookname,numCopies);
-        }else if(choice==5){
+            char message[2000]="";
+            strcat(message,bookname);
+            strcat(message," book has been added to library\n");
+            if(send(client_socket,message,strlen(message),0)==-1){
+                printf("Error sending this message\n");
+                exit(EXIT_FAILURE);
+            }
+        }else if(choice==6){
             char buffer[2000];
             recv(client_socket,buffer,sizeof(buffer),0);
             char* bookname=strtok(buffer,":");
             char* username=strtok(NULL,":");
+            printf("%s is the username\n",username);
             issueBook(bookname,username);
-        }else if(choice==6){
+            char message[2000]="";
+            strcat(message,bookname);
+            strcat(message," book has been issued by ");
+            strcat(message,username);
+            strcat(message,"\n");
+            if(send(client_socket,message,strlen(message),0)==-1){
+                printf("Error sending this message\n");
+                exit(EXIT_FAILURE);
+            }
+        }else if(choice==5){
             char buffer[2000];
             recv(client_socket,buffer,sizeof(buffer),0);
             printf("received %s for delete book choice\n",buffer);
             char* bookname=strtok(buffer,":");
             char* username=strtok(NULL,":");
-            printf("%s %s\n",bookname,username);
             deleteBook(bookname,username);
+            char message[2000]="";
+            strcat(message,bookname);
+            strcat(message," book has been deleted from the library by ");
+            strcat(message,username);
+            strcat(message,"\n");
+            if(send(client_socket,message,strlen(message),0)==-1){
+                printf("Error sending this message\n");
+                exit(EXIT_FAILURE);
+            }
+        }else if(choice==7){
+            char buffer[2000];
+            recv(client_socket,buffer,sizeof(buffer),0);
+            char* bookname=strtok(buffer,":");
+            char* username=strtok(NULL,":");
+            returnBook(bookname,username);
+            char message[2000];
+            strcat(message,bookname);
+            strcat(message," book has been returned by the user ");
+            strcat(message,username);
+            strcat(message,"\n");
+            if(send(client_socket,message,strlen(message),0)==-1){
+                printf("Error sending this message\n");
+                exit(EXIT_FAILURE);
+            }
         }
     }
     close(client_socket);
