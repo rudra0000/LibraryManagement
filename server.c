@@ -9,11 +9,10 @@
 #include<fcntl.h>
 #include"addition.h"
 #include"book.h"
-#define PORT 1085
+#define PORT 1092
 #define MAX_CLIENTS 10
 #define RECORD_SIZE 900
 void* handleClient(void* arg){
-    printf("this function is also being called\n");
     int client_socket=*((int*)arg);
     //handle client requests
     int choice;
@@ -122,6 +121,21 @@ void* handleClient(void* arg){
                 printf("Error sending this message\n");
                 exit(EXIT_FAILURE);
             }
+        }else if(choice==10){
+            char buffer[2000];
+            recv(client_socket,buffer,sizeof(buffer),0);
+            char authorName[2000];
+            findAuthorName(buffer,authorName);
+            char message[2000]="";
+            strcat(message,"author of ");
+            strcat(message,buffer);
+            strcat(message,"  is ");
+            strcat(message,authorName);
+            strcat(message,"\n");
+            if(send(client_socket,message,strlen(message),0)==-1){
+                printf("Error sending this message\n");
+                exit(EXIT_FAILURE);
+            }
         }
     }
     close(client_socket);
@@ -158,14 +172,10 @@ int main(){
         if(new_socket==-1){
             printf("Accept failed\n");
             continue;
-        }else{
-            printf("hey new connection estb\n");
         }
         if(pthread_create(&threads[thread_cnt],NULL,handleClient,&new_socket)!=0){
             printf("Thread creation failed\n");
             close(new_socket);
-        }else{
-            printf("hey new thread created to entertain a new request\n");
         }
         thread_cnt++;
     }

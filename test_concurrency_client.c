@@ -9,7 +9,7 @@
 #include <pthread.h>
 #include "authentication.h"
 
-#define PORT 1085
+#define PORT 1092
 
 void* send_request(void* arg) {
     int client_socket;

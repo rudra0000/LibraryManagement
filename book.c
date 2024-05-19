@@ -125,7 +125,6 @@ void deleteBook(char* bookname,char* username){
         for (int i = 0; i < bytes_read; i++) {
             if (buffer[i] == '\n') {
                 line[line_length] = '\0';
-                printf("%s line we got ff ff\n",line);
                 char *saved_bookname = strtok(line, ":");
                 char *author= strtok(NULL, ":");
                 if (saved_bookname!=NULL && strcmp(saved_bookname,bookname) == 0) {
@@ -150,7 +149,6 @@ void deleteBook(char* bookname,char* username){
         close(file);
         exit(EXIT_FAILURE);
     }
-    printf("yo control reached here\n");
     lseek(file,0,SEEK_SET);
     //creating a new temporary file
     int new_file=open("temp.txt", O_WRONLY|O_CREAT|O_TRUNC,0644);
@@ -214,7 +212,6 @@ void updateName(char* oldName,char* newName){
         for (int i = 0; i < bytes_read; i++) {
             if (buffer[i] == '\n') {
                 line[line_length] = '\0';
-                printf("%s line we got ff ff\n",line);
                 char *saved_bookname = strtok(line, ":");
                 char *author= strtok(NULL, ":");
                 if (saved_bookname!=NULL && strcmp(saved_bookname,oldName) == 0) {
@@ -278,4 +275,48 @@ void updateName(char* oldName,char* newName){
     close(new_file);
     remove("books.txt");
     rename("temp.txt","books.txt");
+}
+void findAuthorName(char* bookname,char* authorName){
+    int file=open("books.txt",O_RDONLY);
+    if(file==-1){
+        printf("Error opening file\n");
+        exit(EXIT_FAILURE);
+    }
+    struct flock lock;
+    lock.l_type=F_RDLCK;
+    lock.l_len=RECORD_SIZE;
+    lock.l_start=0;
+    lock.l_whence=SEEK_SET; //advisory locking
+    if(fcntl(file,F_SETLK,&lock)==-1){
+        perror("Error locking file herwqaw\n");
+        exit(EXIT_FAILURE);
+    }
+    ssize_t bytes_read;
+    char buffer[1000];
+    char line[1000];
+    int line_length = 0;
+    int line_no_of_book=-1;
+    int current_line=0;
+    while ((bytes_read = read(file, buffer, 1000)) > 0) {
+        for (int i = 0; i < bytes_read; i++) {
+            if (buffer[i] == '\n') {
+                line[line_length] = '\0';
+                char *saved_bookname = strtok(line, ":");
+                char *author= strtok(NULL, ":");
+                if (saved_bookname!=NULL && strcmp(saved_bookname,bookname) == 0) {
+                    //found the book    
+                    strcpy(authorName,author);
+                    close(file);
+                    break;
+                }
+                // Reset line buffer
+                current_line++;
+                line_length = 0;
+            } else {
+                // Copy character to line buffer
+                line[line_length] = buffer[i];
+                line_length++;
+            }
+        }
+    }
 }

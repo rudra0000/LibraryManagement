@@ -8,7 +8,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include"authentication.h"
-#define PORT 1085
+#define PORT 1092
 int main(){
     int client_socket;
     int choice;
@@ -59,6 +59,7 @@ int main(){
             printf("7. issue book\n");
             printf("8. return book\n");
             printf("9. logout\n");
+            printf("10. find author name\n");
             scanf("%d",&choice);
         }
         if(send(client_socket,&choice,sizeof(choice),0)==-1){
@@ -98,6 +99,10 @@ int main(){
                 strcat(oldName,":");
                 strcat(oldName,newName);
                 send(client_socket,oldName,sizeof(oldName),0);
+            }else if(choice==10){
+                char bookName[2000];
+                scanf("%s",bookName);
+                send(client_socket,bookName,sizeof(bookName),0);
             }
             char message[2000]="";
             recv(client_socket,message,sizeof(message),0);

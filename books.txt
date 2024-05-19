@@ -1,5 +1,5 @@
 newjunglebook:rudyardkipling
 linearalgebra:gilbertstrang
 invisibleman:hgwells
-gullivertravels:jonathanswift
+newgullivertravels:jonathanswift
 harrypotter:jkrowling
