@@ -52,12 +52,13 @@ int main(){
             printf("3.logout\n");
             printf("4.add book\n");
             printf("5.delete book\n");
+            printf("6. update book name\n");
             scanf("%d",&choice);
         }else if(flag==1){
             //write menu for user
-            printf("6. issue book\n");
-            printf("7. return book\n");
-            printf("8. logout\n");
+            printf("7. issue book\n");
+            printf("8. return book\n");
+            printf("9. logout\n");
             scanf("%d",&choice);
         }
         if(send(client_socket,&choice,sizeof(choice),0)==-1){
@@ -71,7 +72,7 @@ int main(){
                 strcat(username,":");
                 strcat(username,password);
                 send(client_socket,username,sizeof(username),0);
-            }else if(choice==3 || choice==8){
+            }else if(choice==3 || choice==9){
                 printf("bye\n");
                 break;
             }else if(choice==4){
@@ -81,7 +82,7 @@ int main(){
                 strcat(bookname,":");
                 strcat(bookname,author);
                 send(client_socket,bookname,sizeof(bookname),0);
-            }else if(choice==5 || choice==6 || choice==7){
+            }else if(choice==5 || choice==7 || choice==8){
                 char bookname[2000],username[2000];
                 scanf("%s",bookname);
                 scanf("%s",username);
@@ -90,13 +91,14 @@ int main(){
                 strcat(bookname,username);
                 send(client_socket,bookname,sizeof(bookname),0);
             }
-            // else if(choice==6){
-            //     char* bookname[2000];
-            //     scanf("%s",bookname);
-            //     strcat(bookname,":");
-            //     strcat(bookname,username);
-            //     send(client_socket,bookname,sizeof(bookname),0);
-            // }
+            else if(choice==6){
+                char newName[2000],oldName[2000];
+                scanf("%s",oldName);
+                scanf("%s",newName);
+                strcat(oldName,":");
+                strcat(oldName,newName);
+                send(client_socket,oldName,sizeof(oldName),0);
+            }
             char message[2000]="";
             recv(client_socket,message,sizeof(message),0);
             printf("%s",message);

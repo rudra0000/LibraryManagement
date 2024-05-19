@@ -1,4 +1,4 @@
-junglebook:rudyardkipling
+newjunglebook:rudyardkipling
 linearalgebra:gilbertstrang
 invisibleman:hgwells
 gullivertravels:jonathanswift

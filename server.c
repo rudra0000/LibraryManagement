@@ -60,7 +60,7 @@ void* handleClient(void* arg){
                 printf("Error sending this message\n");
                 exit(EXIT_FAILURE);
             }
-        }else if(choice==6){
+        }else if(choice==7){
             char buffer[2000];
             recv(client_socket,buffer,sizeof(buffer),0);
             char* bookname=strtok(buffer,":");
@@ -92,7 +92,7 @@ void* handleClient(void* arg){
                 printf("Error sending this message\n");
                 exit(EXIT_FAILURE);
             }
-        }else if(choice==7){
+        }else if(choice==8){
             char buffer[2000];
             recv(client_socket,buffer,sizeof(buffer),0);
             char* bookname=strtok(buffer,":");
@@ -102,6 +102,21 @@ void* handleClient(void* arg){
             strcat(message,bookname);
             strcat(message," book has been returned by the user ");
             strcat(message,username);
+            strcat(message,"\n");
+            if(send(client_socket,message,strlen(message),0)==-1){
+                printf("Error sending this message\n");
+                exit(EXIT_FAILURE);
+            }
+        }else if(choice==6){
+            char buffer[2000];
+            recv(client_socket,buffer,sizeof(buffer),0);
+            char* oldName=strtok(buffer,":");
+            char* newName=strtok(NULL,":");
+            updateName(oldName,newName);
+            char message[2000];
+            strcat(message,oldName);
+            strcat(message," updated to ");
+            strcat(message,newName);
             strcat(message,"\n");
             if(send(client_socket,message,strlen(message),0)==-1){
                 printf("Error sending this message\n");
